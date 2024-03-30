@@ -5,7 +5,7 @@ import csv
 import dotenv
 import pickle
 from langchain_community.vectorstores.redis import Redis
-from langchain_google_vertexai import VertexAI, VertexAIEmbeddings
+from langchain_google_vertexai import VertexAIEmbeddings
 
 dotenv.load_dotenv()
 
@@ -47,8 +47,8 @@ def query_database(vectorstore: Redis, query: str, num_results: int = 5) -> list
     return results
 
 
-vectorstore = initialize_database()
-results = query_database(vectorstore, "developer software engineer", 3)
-print(results)
-for result in results:
-    print(f"Content: {result[0].page_content} --- Similiarity: {result[1]} --- Metadata: {result[0].metadata}")
+# vectorstore = initialize_database()
+# results = query_database(vectorstore, "developer software engineer", 3)
+# print(results)
+# for result in results:
+#     print(f"Content: {result[0].page_content} --- Similiarity: {result[1]} --- Metadata: {result[0].metadata}")
