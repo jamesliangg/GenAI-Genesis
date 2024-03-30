@@ -18,12 +18,11 @@ async def say_hello(name: str):
 async def query(query: str):
     vectordatabase = initialize_database()
     results = vectordatabase.similarity_search_with_relevance_scores(query, 5)
-    response_json = dict()
-    i = 0
+    response_json = list()
     for result in results:
-        response_json[i] = dict()
+        result_dict = dict()
         for meta_item in result[0].metadata:
-            response_json[i][meta_item] = result[0].metadata[meta_item]
-            response_json[i]['similarity'] = result[1]
-        i += 1
+            result_dict[meta_item] = result[0].metadata[meta_item]
+            result_dict['similarity'] = result[1]
+        response_json.append(result_dict)
     return {"query": f"{query}", "response": response_json}
