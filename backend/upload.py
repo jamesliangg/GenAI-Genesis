@@ -2,6 +2,7 @@
 # https://cloud.google.com/blog/products/databases/memorystore-for-redis-vector-search-and-langchain-integration
 import os
 import csv
+import json
 import dotenv
 import pickle
 from langchain_community.vectorstores.redis import Redis
@@ -22,13 +23,20 @@ def initialize_database() -> Redis:
                                                 key_prefix=key_prefix, redis_url=REDIS_URL)
         print("Loaded existing vectorstore from file.")
     else:
-        data = open_csv("test.csv")
+        # data = open_csv("test.csv")
+        # data = open_json("test.json")
+        data = open_json("my_list.json")
         metadata = list()
         texts = list()
+        i = 0
         for jobs in data:
-            metadata.append({"job_title": jobs[0], "location": jobs[1], "salary": jobs[2], "job_type": jobs[3],
-                             "description": jobs[4]})
-            texts.append(jobs[4])
+            if 'Description' in jobs:
+                # metadata.append({"job_title": jobs[0], "location": jobs[1], "salary": jobs[2], "job_type": jobs[3],
+                #                  "description": jobs[4]})
+                metadata.append(jobs)
+                texts.append(jobs['Description'])
+                print(i)
+                i += 1
         vectorstore = Redis.from_texts(texts, embedding, metadatas=metadata, redis_url=REDIS_URL, index_name=index_name)
         with open("vectorstore.pkl", "wb") as f:
             pickle.dump([vectorstore.schema, vectorstore.key_prefix, vectorstore.index_name], f)
@@ -42,13 +50,20 @@ def open_csv(file_name: str) -> list:
         return data
 
 
+def open_json(file_name: str) -> list:
+    with open(file_name, mode='r') as file:
+        data = json.load(file)
+        return data
+
+
 def query_database(vectorstore: Redis, query: str, num_results: int = 5) -> list:
     results = vectorstore.similarity_search_with_relevance_scores(query, k=num_results)
     return results
 
 
-# vectorstore = initialize_database()
-# results = query_database(vectorstore, "developer software engineer", 3)
-# print(results)
-# for result in results:
-#     print(f"Content: {result[0].page_content} --- Similiarity: {result[1]} --- Metadata: {result[0].metadata}")
+if __name__ == "__main__":
+    vectorstore = initialize_database()
+    # results = query_database(vectorstore, "developer software engineer", 3)
+    # print(results)
+    # for result in results:
+    #     print(f"Content: {result[0].page_content} --- Similiarity: {result[1]} --- Metadata: {result[0].metadata}")
