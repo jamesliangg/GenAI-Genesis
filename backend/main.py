@@ -1,7 +1,9 @@
 from fastapi import FastAPI
+from flask_cors import CORS
 from upload import initialize_database
 
 app = FastAPI()
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow any origin
 
 
 @app.get("/")
